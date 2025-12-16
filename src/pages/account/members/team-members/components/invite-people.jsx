@@ -36,7 +36,7 @@ const InvitePeople = () => {
           />
         </div>
         <div className="flex items-baseline flex-wrap gap-2.5">
-          <Label className="flex w-full max-w-32">Role</Label>
+          <Label className="flex w-full max-w-32">Role7777</Label>
           <div className="flex flex-col items-start grow gap-5">
             <Select defaultValue="1">
               <SelectTrigger>

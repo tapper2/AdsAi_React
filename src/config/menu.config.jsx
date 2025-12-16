@@ -57,6 +57,14 @@ import {
 
 export const MENU_SIDEBAR = [
   {
+    title: 'Ads_Ai',
+    icon: LayoutGrid,
+    children: [
+      { title: 'Campains', path: '/campain/' },
+      { title: 'Single Campain', path: '/singleCampain/ads' },
+    ],
+  },
+  {
     title: 'Dashboards',
     icon: LayoutGrid,
     children: [
@@ -840,7 +848,11 @@ export const MENU_MEGA = [
                 icon: Grid,
                 path: '/public-profile/projects/2-columns',
               },
-              { title: 'Works3', icon: WorkIcon, path: '/public-profile/works' },
+              {
+                title: 'Works3',
+                icon: WorkIcon,
+                path: '/public-profile/works',
+              },
               {
                 title: 'Teams',
                 icon: PeopleIcon,
