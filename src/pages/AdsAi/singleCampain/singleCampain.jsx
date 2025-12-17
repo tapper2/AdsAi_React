@@ -29,7 +29,7 @@ import CampainTable from '../components/tables/campainTable'
 export function SingleCampain() {
   const { name } = useParams();
   return (
-    <div className="p-5">
+    <div className="py-0 px-5">
       {/* //*************************
          קריאה לכותרת שם הקמפיין
        **************************** */}
