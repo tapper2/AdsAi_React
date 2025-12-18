@@ -32,7 +32,7 @@ export function Campain() {
       {/* //*************************
                קריאה לכותרת שם הקמפיין
              **************************** */}
-      {/* 
+
       <CampainTitleHeader
         name="רשימת קמפיינים"
         info={[
@@ -40,7 +40,7 @@ export function Campain() {
           { label: '78 המרות', icon: ChartBar },
           { label: 'סטטוס פעיל', icon: ChartPie },
         ]}
-      /> */}
+      />
 
       <Container>
 
@@ -55,38 +55,7 @@ export function Campain() {
         <div className="mt-[20px]" >
           <CampainsTable data={campainsJson} />
         </div>
-
       </Container>
-      {/* <Fragment>
-        <PageNavbar />
-        <Container>
-          <Toolbar>
-            <ToolbarHeading>
-              <ToolbarPageTitle text="רשימת כל הקמפיינים" />
-              <ToolbarDescription>
-                Overview of all team members and roles.
-              </ToolbarDescription>
-            </ToolbarHeading>
-            <ToolbarActions>
-              <Button variant="outline">
-                <Link to="#">Import Members</Link>
-              </Button>
-              <Button>
-                <Link to="#">Add Member</Link>
-              </Button>
-            </ToolbarActions>
-          </Toolbar>
-        </Container>
-
-        <Container>
-          <CampainsTable data={campainsJson} />
-        </Container>
-      </Fragment> */}
-      {/* <Fragment>
-        <Container>
-          <CampaignsContent mode="list" />
-        </Container>
-      </Fragment> */}
     </div>
   );
 }

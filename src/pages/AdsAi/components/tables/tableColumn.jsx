@@ -2,6 +2,7 @@
 
 import { DataGridColumnHeader } from '@/components/ui/data-grid-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
+import { format, parseISO } from 'date-fns';
 
 export const tableColumn = (id, title, metricKey, size, type, arrType) => {
 
@@ -23,7 +24,12 @@ export const tableColumn = (id, title, metricKey, size, type, arrType) => {
     cell: ({ row }) => {
       const dynamicMetricsObject = row.original[arrType];
       const metricValue = dynamicMetricsObject[metricKey];
-      const formattedValue = type == 'int' ? (+metricValue).toLocaleString('en-US') : metricValue;
+      let formattedValue = type == 'int' ? (+metricValue).toLocaleString('en-US') : metricValue;
+
+      if (type == 'date') {
+        let dateObject = parseISO(formattedValue);
+        formattedValue = format(dateObject, 'dd-MM-yyyy');
+      }
 
       return (
         <div className="flex flex-col gap-2 text-right float-right">

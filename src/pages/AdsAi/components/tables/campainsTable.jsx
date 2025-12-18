@@ -33,7 +33,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { tableColumn } from './tableColumn';
 
 const CampainsTable = ({ data }) => {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 6 });
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [sorting, setSorting] = useState([{ id: 'updated_at', desc: true }]);
   const [rowSelection, setRowSelection] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,6 +47,8 @@ const CampainsTable = ({ data }) => {
 
   const columns = useMemo(
     () => [
+      tableColumn('סטטוס', 'סטטוס', 'status', 40, 'string', 'campaign'),
+      tableColumn('תאריך התחלה', 'תאריך התחלה', 'start_date', 40, 'date', 'campaign'),
       tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
       tableColumn('צפיות', 'צפיות', 'impressions', 40, 'int', 'metrics'),
       tableColumn('קליקים', 'קליקים', 'clicks', 40, 'int', 'metrics'),
@@ -107,7 +109,7 @@ const CampainsTable = ({ data }) => {
     >
       <Card>
         <CardHeader className="py-3.5">
-          <CardTitle>קבוצות מודעות</CardTitle>
+          <CardTitle>קמפיינים</CardTitle>
           <CardHeading>
             <div className="flex items-center gap-2.5">
               <div className="relative">
