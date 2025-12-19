@@ -6,7 +6,24 @@
 // metrics.conversions: מספר ההמרות.
 // metrics.conversions_value: ערך ההמרות.
 
-const campainsJson = [
+const statusNames = {
+  1: 'ok',
+  2: 'bad',
+  3: 'complete',
+  4: 'cancel',
+};
+
+function addStatusNameToCampaigns(campaigns) {
+  return campaigns.map(item => ({
+    ...item,
+    campaign: {
+      ...item.campaign,
+      statusName: statusNames[item.campaign.status] || '',
+    },
+  }));
+}
+
+const campainsJson = addStatusNameToCampaigns([
   {
     campaign: {
       resource_name: 'customers/9162124601/campaigns/23312353667',
@@ -262,6 +279,6 @@ const campainsJson = [
       impressions: 2675,
     },
   },
-];
+]);
 
 export default campainsJson;

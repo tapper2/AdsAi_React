@@ -47,7 +47,7 @@ const CampainsTable = ({ data }) => {
 
   const columns = useMemo(
     () => [
-      tableColumn('סטטוס', 'סטטוס', 'status', 40, 'string', 'campaign'),
+      tableColumn('סטטוס', 'סטטוס', 'statusName', 40, 'string', 'campaign'),
       tableColumn('תאריך התחלה', 'תאריך התחלה', 'start_date', 40, 'date', 'campaign'),
       tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
       tableColumn('צפיות', 'צפיות', 'impressions', 40, 'int', 'metrics'),
