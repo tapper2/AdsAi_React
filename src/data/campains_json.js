@@ -7,10 +7,11 @@
 // metrics.conversions_value: ערך ההמרות.
 
 const statusNames = {
-  1: 'ok',
-  2: 'bad',
-  3: 'complete',
-  4: 'cancel',
+  0: 'לא הוגדר סטטוס',
+  1: 'סטטוס לא ידוע',
+  2: 'פעיל',
+  3: 'מושהה',
+  4: 'נמחק',
 };
 
 function addStatusNameToCampaigns(campaigns) {
@@ -245,23 +246,23 @@ const campainsJson = addStatusNameToCampaigns([
       impressions: 334,
     },
   },
-  {
-    campaign: {
-      resource_name: 'customers/9162124601/campaigns/20963760670',
-      status: 3,
-      name: 'מיסוי מקרקעין',
-      id: 20963760670,
-      start_date: '2024-01-20',
-      end_date: '2037-12-30',
+    {
+      campaign: {
+        resource_name: 'customers/9162124601/campaigns/20963760670',
+        status: 3,
+        name: 'מיסוי מקרקעין',
+        id: 20963760670,
+        start_date: '2024-01-20',
+        end_date: '2037-12-30',
+      },
+      metrics: {
+        clicks: 50,
+        conversions_value: 0,
+        conversions: 0,
+        cost_micros: 204843210,
+        impressions: 797,
+      },
     },
-    metrics: {
-      clicks: 50,
-      conversions_value: 0,
-      conversions: 0,
-      cost_micros: 204843210,
-      impressions: 797,
-    },
-  },
   {
     campaign: {
       resource_name: 'customers/9162124601/campaigns/20905088863',

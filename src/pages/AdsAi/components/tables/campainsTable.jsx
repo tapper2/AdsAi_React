@@ -45,7 +45,7 @@ const CampainsTable = ({ data }) => {
     );
   }, [searchQuery]);
 
-  const columns = useMemo(
+  const columns = useMemo(  
     () => [
       tableColumn('סטטוס', 'סטטוס', 'statusName', 40, 'string', 'campaign'),
       tableColumn('תאריך התחלה', 'תאריך התחלה', 'start_date', 40, 'date', 'campaign'),
