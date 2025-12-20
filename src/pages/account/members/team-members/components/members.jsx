@@ -713,6 +713,7 @@ const Members = () => {
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
+      console.log("'IT : '", item);
       // Filter by status
       const matchesStatus =
         !selectedStatuses?.length ||
@@ -731,6 +732,7 @@ const Members = () => {
   }, [searchQuery, selectedStatuses]);
 
   const statusCounts = useMemo(() => {
+    console.log('DATA : ', data);
     return data.reduce((acc, item) => {
       acc[item.status.label] = (acc[item.status.label] || 0) + 1;
       return acc;

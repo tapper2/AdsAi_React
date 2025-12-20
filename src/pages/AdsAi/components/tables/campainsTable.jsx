@@ -8,7 +8,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { Search, Settings2, SquarePen, Trash2, X } from 'lucide-react';
+import { Filter, Search, Settings2, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -19,6 +20,7 @@ import {
   CardTitle,
   CardToolbar,
 } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { DataGrid, useDataGrid } from '@/components/ui/data-grid';
 import { DataGridColumnHeader } from '@/components/ui/data-grid-column-header';
 import { DataGridColumnVisibility } from '@/components/ui/data-grid-column-visibility';
@@ -28,6 +30,12 @@ import {
   DataGridTableHead,
 } from '@/components/ui/data-grid-table';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { tableColumn } from './tableColumn';
@@ -37,18 +45,58 @@ const CampainsTable = ({ data }) => {
   const [sorting, setSorting] = useState([{ id: 'updated_at', desc: true }]);
   const [rowSelection, setRowSelection] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStatuses, setSelectedStatuses] = useState([]);
 
+  // const filteredData = useMemo(() => {
+  //   if (!searchQuery) return data;
+  //   return data.filter((item) =>
+  //     item['campaign'].name.toLowerCase().includes(searchQuery.toLowerCase()),
+  //   );
+  // }, [searchQuery, selectedStatuses]);
   const filteredData = useMemo(() => {
-    if (!searchQuery) return data;
-    return data.filter((item) =>
-      item['ad_group'].name.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [searchQuery]);
+    return data.filter((item) => {
+      console.log('IT : ', item);
+      // Filter by status
+      const matchesStatus =
+        !selectedStatuses?.length ||
+        selectedStatuses.includes(item.campaign.statusName);
 
-  const columns = useMemo(  
+      // Filter by search query (case-insensitive)
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch =
+        !searchQuery ||
+        item.member.name.toLowerCase().includes(searchLower) ||
+        item.member.tasks.toLowerCase().includes(searchLower) ||
+        item.location.name.toLowerCase().includes(searchLower);
+
+      return matchesStatus && matchesSearch;
+    });
+  }, [searchQuery, selectedStatuses]);
+
+  const statusCounts = useMemo(() => {
+    return data.reduce((acc, item) => {
+      acc[item.campaign.statusName] = (acc[item.campaign.statusName] || 0) + 1;
+      return acc;
+    }, {});
+  }, []);
+
+  const handleStatusChange = (checked, value) => {
+    setSelectedStatuses((prev = []) =>
+      checked ? [...prev, value] : prev.filter((v) => v !== value),
+    );
+  };
+
+  const columns = useMemo(
     () => [
       tableColumn('סטטוס', 'סטטוס', 'statusName', 40, 'string', 'campaign'),
-      tableColumn('תאריך התחלה', 'תאריך התחלה', 'start_date', 40, 'date', 'campaign'),
+      tableColumn(
+        'תאריך התחלה',
+        'תאריך התחלה',
+        'start_date',
+        40,
+        'date',
+        'campaign',
+      ),
       tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
       tableColumn('צפיות', 'צפיות', 'impressions', 40, 'int', 'metrics'),
       tableColumn('קליקים', 'קליקים', 'clicks', 40, 'int', 'metrics'),
@@ -132,6 +180,49 @@ const CampainsTable = ({ data }) => {
                   </Button>
                 )}
               </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline">
+                    <Filter />
+                    סטטוס
+                    {selectedStatuses.length > 0 && (
+                      <Badge size="sm" variant="outline">
+                        {selectedStatuses.length}
+                      </Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-40 p-3" align="start">
+                  <div className="space-y-3">
+                    <div className="text-xs font-medium text-muted-foreground">
+                      Filters
+                    </div>
+                    <div className="space-y-3">
+                      {Object.keys(statusCounts).map((status) => (
+                        <div key={status} className="flex items-center gap-2.5">
+                          <Checkbox
+                            id={status}
+                            checked={selectedStatuses.includes(status)}
+                            onCheckedChange={(checked) =>
+                              handleStatusChange(checked === true, status)
+                            }
+                          />
+
+                          <Label
+                            htmlFor={status}
+                            className="grow flex items-center justify-between font-normal gap-1.5"
+                          >
+                            {status}
+                            <span className="text-muted-foreground">
+                              {statusCounts[status]}
+                            </span>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
               <Toolbar />
             </div>
           </CardHeading>
