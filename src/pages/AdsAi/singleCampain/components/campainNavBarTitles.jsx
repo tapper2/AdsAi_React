@@ -1,17 +1,19 @@
 import { NavbarMenu } from '@/partials/navbar/navbar-menu';
+import { useParams } from 'react-router-dom';
 
 const CampainNavBarTitles = () => {
+  const { id } = useParams();
 
   const CampainNavBarTitlesData = [
-    { title: 'קמפיינים', path: '/singleCampain/ads' },
-    { title: 'קליקים', path: '/singleCampain/clicks' },
-    { title: 'מילות חיפוש', path: '/public-profile/works' },
-    { title: 'מילים שליליות', path: '/public-profile/teams' },
-    { title: 'מונחי חיפוש', path: '/public-profile/network' },
-    { title: 'מודעות', path: '/public-profile/activity' },
+    { title: 'קבוצות מודעות', path: `/singleCampain/ads/${id}` },
+    { title: 'מילות מפתח', path: `/singleCampain/searchWords/${id}` },
+    { title: 'מילות חיפוש', path: `/singleCampain/keyWords/${id}` },
+    { title: 'מילים שליליות', path: `/singleCampain/negativeWords/${id}` },
+    // { title: 'מונחי חיפוש', path: `/singleCampain/network/${id}` },
+    // { title: 'מודעות', path: `/singleCampain/activity/${id}` },
   ];
 
-  if (CampainNavBarTitlesData) {
+  if (CampainNavBarTitlesData && id) {
     return <NavbarMenu items={CampainNavBarTitlesData} />;
   } else {
     return <></>;

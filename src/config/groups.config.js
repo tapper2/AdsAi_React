@@ -24,12 +24,8 @@ const GroupConfig = [
     // ],
   },
   {
-    title: 'קליקים',
-    path: '/groups/clicks',
-    // children: [
-    //   { title: '3 Columns', path: '/public-profile/projects/3-columns' },
-    //   { title: '2 Columns', path: '/public-profile/projects/2-columns' },
-    // ],
+    title: 'מילות חיפוש',
+    path: '/groups/searchwords',
   },
   { title: 'מילות חיפוש', path: '/public-profile/works' },
   { title: 'מילים שליליות', path: '/public-profile/teams' },

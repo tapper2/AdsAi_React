@@ -24,15 +24,24 @@ import { ClicksTable } from '../components/tables/clicksTable';
 import { GroupData } from './data/AdsGroupData';
 import CampainKeyWords from './data/campainKeyWords';
 import CampainTable from '../components/tables/campainTable';
+import SearchTermsTable from '../components/tables/SearchTermsTable';
+import KeywordsTable from '../components/tables/KeywordsTable';
+import NegativeKeywordsTable from '../components/tables/NegativeKeywordsTable';
 import { useCampaignsStore } from '../store/useCampaignsStore';
 
 import { mapCampaignsWithStatus } from '../services/campaignService';
 
 export function SingleCampain() {
   const { name, id } = useParams();
-  const { date, getCampainById } = useCampaignsStore();
+  const { date, getCampainById, fetchSearchTerms, fetchKeywords, fetchNegativeKeywords } = useCampaignsStore();
   const [singleData, setSingleData] = useState([]);
+  const [searchTermsData, setSearchTermsData] = useState([]);
+  const [keywordsData, setKeywordsData] = useState([]);
+  const [negativeKeywordsData, setNegativeKeywordsData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [keywordsLoading, setKeywordsLoading] = useState(false);
+  const [negativeLoading, setNegativeLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -51,6 +60,54 @@ export function SingleCampain() {
         .catch(() => setLoading(false));
     }
   }, [id, date.from, date.to, getCampainById]);
+
+  useEffect(() => {
+    if (id && name === 'keyWords') {
+      setSearchLoading(true);
+      fetchSearchTerms({
+        startDate: date.from,
+        endDate: date.to,
+        campaignId: id,
+      })
+        .then((data) => {
+          setSearchTermsData(data);
+          setSearchLoading(false);
+        })
+        .catch(() => setSearchLoading(false));
+    }
+  }, [id, name, date.from, date.to, fetchSearchTerms]);
+
+  useEffect(() => {
+    if (id && name === 'searchWords') {
+      setKeywordsLoading(true);
+      fetchKeywords({
+        startDate: date.from,
+        endDate: date.to,
+        campaignId: id,
+      })
+        .then((data) => {
+          const mappedData = mapCampaignsWithStatus(data, 'ad_group_criterion');
+          setKeywordsData(mappedData);
+          setKeywordsLoading(false);
+        })
+        .catch(() => setKeywordsLoading(false));
+    }
+  }, [id, name, date.from, date.to, fetchKeywords]);
+
+  useEffect(() => {
+    if (id && name === 'negativeWords') {
+      setNegativeLoading(true);
+      fetchNegativeKeywords({
+        campaignId: id,
+      })
+        .then((data) => {
+          const mappedData = mapCampaignsWithStatus(data, 'campaign_criterion');
+          setNegativeKeywordsData(mappedData);
+          setNegativeLoading(false);
+        })
+        .catch(() => setNegativeLoading(false));
+    }
+  }, [id, name, fetchNegativeKeywords]);
 
   const headerInfo = useMemo(() => {
     if (!singleData || singleData.length === 0) return [];
@@ -99,12 +156,14 @@ export function SingleCampain() {
           </Navbar>
         </div>
 
-        {loading ? (
+        {loading || searchLoading || keywordsLoading || negativeLoading ? (
           <div className="py-10 text-center">טוען נתונים...</div>
         ) : (
           <>
             {name == 'ads' && <CampainTable data={singleData} />}
-            {name == 'searchwords' && <ClicksTable data={CampainKeyWords} />}
+            {name == 'keyWords' && <SearchTermsTable data={searchTermsData} />}
+            {name == 'searchWords' && <KeywordsTable data={keywordsData} />}
+            {name == 'negativeWords' && <NegativeKeywordsTable data={negativeKeywordsData} />}
           </>
         )}
       </Container>

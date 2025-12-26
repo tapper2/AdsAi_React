@@ -5,12 +5,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format, parseISO } from 'date-fns';
 
 export const tableColumn = (id, title, metricKey, size, type, arrType) => {
- 
+  const getNestedValue = (obj, path) => {
+    if (!path) return obj;
+    return path.split('.').reduce((acc, part) => acc?.[part], obj);
+  };
   
   return {
     id: id,
     accessorFn: (row) => {
-      const dynamicMetricsObject = row[arrType] || {};
+      const dynamicMetricsObject = getNestedValue(row, arrType) || {};
       let value = dynamicMetricsObject[metricKey];
 
       // חישובים אוטומטיים אם השדות חסרים

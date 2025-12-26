@@ -80,4 +80,41 @@ export const useCampaignsStore = create((set) => ({
       throw error;
     }
   },
+  fetchSearchTerms: async ({ startDate, endDate, campaignId }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}campainListSearchTerms`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+        campaignId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching search terms:', error);
+      throw error;
+    }
+  },
+  fetchKeywords: async ({ startDate, endDate, campaignId }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}campainListKeywords`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+        campaignId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching keywords:', error);
+      throw error;
+    }
+  },
+  fetchNegativeKeywords: async ({ campaignId }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}campainListNegativeKeywords`, {
+        campaignId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching negative keywords:', error);
+      throw error;
+    }
+  },
 }));
