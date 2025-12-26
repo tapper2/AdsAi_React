@@ -103,7 +103,7 @@ export function AppRoutingSetup() {
       <Route element={<RequireAuth />}>
         <Route element={<Demo1Layout />}>
           <Route path="/campain" element={<Campain />} />
-          <Route path="/singleCampain/:name" element={<SingleCampain />} />
+          <Route path="/singleCampain/:name/:id?" element={<SingleCampain />} />
           <Route path="/" element={<DefaultPage />} />
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route

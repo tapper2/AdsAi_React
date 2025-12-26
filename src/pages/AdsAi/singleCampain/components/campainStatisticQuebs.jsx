@@ -1,12 +1,37 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { toAbsoluteUrl } from '@/lib/helpers';
 import { Card, CardContent } from '@/components/ui/card';
+import { useParams } from 'react-router-dom';
+import { useCampaignsStore } from '../../store/useCampaignsStore';
 import CampainDetailsData from '../data/CampainDetailsData';
 
 const CampainStatisticQuebs = () => {
-  console.log("Details : ", CampainDetailsData[0]["metrics"]["clicks"])
+  const { id } = useParams();
+  const { date, getCampaignInfoById } = useCampaignsStore();
+  const [infoData, setInfoData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      getCampaignInfoById({
+        startDate: date.from,
+        endDate: date.to,
+        campaignId: id,
+      })
+        .then((data) => {
+          setInfoData(data);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }
+  }, [id, date.from, date.to, getCampaignInfoById]);
+
+  const displayData = infoData || CampainDetailsData;
+  const metrics = displayData[0]?.metrics || {};
+
   const cost = Math.round(
-    CampainDetailsData[0].metrics.cost_micros / 1_000_000
+    (metrics.cost_micros || 0) / 1_000_000
   );
 
   const costInfo = (
@@ -16,29 +41,29 @@ const CampainStatisticQuebs = () => {
     </span>
   );
 
+  const avgCpc = metrics.average_cpc || (metrics.clicks > 0 ? metrics.cost_micros / metrics.clicks : 0);
+
   const clickCost = (
     <span className="flex items-baseline gap-1">
-      <span className="font-semibold">{(CampainDetailsData[0].metrics.average_cpc / 1_000_000).toLocaleString()}</span>
+      <span className="font-semibold">{(avgCpc / 1_000_000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
       <span className="text-[22px] text-muted-foreground">₪</span>
     </span>
   );
 
+  const ctrValue = metrics.ctr || (metrics.impressions > 0 ? (metrics.clicks / metrics.impressions) : 0);
 
   const clickPer = (
     <span className="flex items-baseline gap-1">
-      <span className="font-semibold">{(CampainDetailsData[0].metrics.ctr * 100).toLocaleString()}</span>
+      <span className="font-semibold">{(ctrValue * 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
       <span className="text-[22px] text-muted-foreground">%</span>
     </span>
   );
 
-
   const items = [
-    { info: CampainDetailsData[0]["metrics"]["clicks"].toLocaleString(), desc: 'קליקים' },
-    {
-      info: costInfo, desc: 'עלות כוללת'
-    },
-    { info: CampainDetailsData[0]["metrics"]["impressions"].toLocaleString(), desc: 'הופעות' },
-    { info: CampainDetailsData[0]["metrics"]["conversions"].toLocaleString(), desc: 'המרות', },
+    { info: (metrics.clicks || 0).toLocaleString(), desc: 'קליקים' },
+    { info: costInfo, desc: 'עלות כוללת' },
+    { info: (metrics.impressions || 0).toLocaleString(), desc: 'הופעות' },
+    { info: (metrics.conversions || 0).toLocaleString(), desc: 'המרות', },
     { info: clickCost, desc: 'עלות ממוצעת לקליק' },
     { info: clickPer, desc: 'אחוז הקלקות (ctr)' },
   ];

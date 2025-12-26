@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -8,7 +9,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { Filter, Search, Settings2, X } from 'lucide-react';
+import { Filter, Search, Settings2, X, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,12 +41,26 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { tableColumn } from './tableColumn';
 
+const STORAGE_KEY = 'campaigns_selected_statuses';
+
 const CampainsTable = ({ data }) => {
+  const navigate = useNavigate();
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [sorting, setSorting] = useState([{ id: 'updated_at', desc: true }]);
   const [rowSelection, setRowSelection] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedStatuses, setSelectedStatuses] = useState([]);
+  const [selectedStatuses, setSelectedStatuses] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
+  // Update localStorage when selectedStatuses changes
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedStatuses));
+  }, [selectedStatuses]);
 
   // const filteredData = useMemo(() => {
   //   if (!searchQuery) return data;
@@ -100,11 +115,29 @@ const CampainsTable = ({ data }) => {
         'campaign',
       ),
       tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
+      tableColumn('עלות ממוצעת לקליק', 'CPC', 'average_cpc', 40, 'currency', 'metrics'),
+      tableColumn('אחוז הקלקות', 'CTR', 'ctr', 40, 'percent', 'metrics'),
       tableColumn('צפיות', 'צפיות', 'impressions', 40, 'int', 'metrics'),
       tableColumn('קליקים', 'קליקים', 'clicks', 40, 'int', 'metrics'),
       tableColumn('שם הקבוצה', 'שם הקבוצה', 'name', 140, 'string', 'campaign'),
+      {
+        id: 'view',
+        header: () => <div className="text-center">צפייה</div>,
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(`/singleCampain/ads/${row.original.campaign?.id}`)}
+            >
+              <Eye className="size-4" />
+            </Button>
+          </div>
+        ),
+        size: 40,
+      },
     ],
-    [],
+    [navigate],
   );
 
   const table = useReactTable({

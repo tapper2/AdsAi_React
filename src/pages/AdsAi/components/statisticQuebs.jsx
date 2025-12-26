@@ -4,10 +4,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useCampaignsStore } from '../store/useCampaignsStore';
 
 const StatisticQuebs = () => {
-  const { campaignsData } = useCampaignsStore();
+  const { campaignsData, campaignsDataLoading } = useCampaignsStore();
 
   const stats = useMemo(() => {
-    if (!campaignsData || campaignsData.length === 0) {
+    console.log("M1 : ", campaignsData);
+    
+    if (campaignsDataLoading) return null;
+
+    if (!campaignsData || !Array.isArray(campaignsData) || campaignsData.length === 0) {
       return {
         clicks: 0,
         cost: 0,
@@ -30,27 +34,33 @@ const StatisticQuebs = () => {
       { clicks: 0, impressions: 0, conversions: 0, costMicros: 0 }
     );
 
+    console.log("M2 : ", totals);
     const totalCost = totals.costMicros / 1000000;
     const avgCpc = totals.clicks > 0 ? totalCost / totals.clicks : 0;
     const ctr = totals.impressions > 0 ? (totals.clicks / totals.impressions) * 100 : 0;
 
     return {
       clicks: totals.clicks.toLocaleString('en-US'),
-      cost: totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      cost: totalCost.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
       impressions: totals.impressions.toLocaleString('en-US'),
       conversions: totals.conversions.toLocaleString('en-US'),
       cpc: avgCpc.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       ctr: ctr.toFixed(2),
     };
-  }, [campaignsData]);
+  }, [campaignsData, campaignsDataLoading]);
 
+  console.log("M3 : ", stats);
+
+  if (campaignsDataLoading) {
+    return <div className="col-span-6 text-center py-4">טוען סטטיסטיקה...</div>;
+  }
   const items = [
-    { info: stats.clicks, desc: 'קליקים' },
-    { info: stats.cost, desc: 'עלות כוללת' },
-    { info: stats.impressions, desc: 'הופעות' },
-    { info: stats.conversions, desc: 'המרות' },
-    { info: stats.cpc, desc: 'עלות ממוצעת לקליק' },
-    { info: stats.ctr + '%', desc: 'אחוז הקלקות (ctr)' },
+    { info: stats?.clicks || 0, desc: 'קליקים' },
+    { info: stats?.impressions || 0, desc: 'הופעות' },
+    { info: stats?.conversions || 0, desc: 'המרות' },
+    { info: '\u20AA ' + (stats?.cpc || 0), desc: 'עלות ממוצעת לקליק' },
+    { info: (stats?.ctr || 0) + '%', desc: 'אחוז הקלקות (ctr)' },
+    { info: '\u20AA ' + (stats?.cost || 0), desc: 'עלות כוללת' },
   ];
 
   // const qubesColors = [

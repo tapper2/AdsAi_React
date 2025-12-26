@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from 'react';
+import { Fragment, useEffect, useMemo } from 'react';
 import { PageNavbar } from '@/pages/account';
 import {
   Toolbar,
@@ -7,7 +7,7 @@ import {
   ToolbarHeading,
   ToolbarPageTitle,
 } from '@/partials/common/toolbar';
-import { ChartBar, ChartLine, ChartPie } from 'lucide-react';
+import { ChartBar, ChartLine, ChartPie, Trash2, PauseCircle } from 'lucide-react';
 import { Link } from 'react-router';
 import { useSettings } from '@/providers/settings-provider';
 import { Button } from '@/components/ui/button';
@@ -22,15 +22,22 @@ import { useCampaignsStore } from '../store/useCampaignsStore';
 
 export function Campain() {
   const { settings } = useSettings();
-  const { campaigns, fetchCampaigns,fetchCampaignsData, loading, date } = useCampaignsStore();
+  const { campaigns, fetchCampaigns, fetchCampaignsData, loading, date } = useCampaignsStore();
 
   useEffect(() => {
-    let campaigns = fetchCampaigns(date.from, date.to);
-    let campaignsData = fetchCampaignsData(date.from, date.to);
-    console.log("CAMPAIGNS : ", campaigns );
-    console.log("CAMPAIGNS DATA : ", campaignsData );
-    console.log("CAMPAIGNS : ", campaigns );
-  }, [fetchCampaigns,fetchCampaignsData, date.from, date.to ]);
+    // קוראים לפונקציות מהסטור ללא השמה למשתנה מקומי שמסתיר את הסטייט
+    fetchCampaigns(date.from, date.to);
+    fetchCampaignsData(date.from, date.to);
+  }, [fetchCampaigns, fetchCampaignsData, date.from, date.to]);
+
+  const campaignStats = useMemo(() => {
+    const total = campaigns?.length || 0;
+    const active = campaigns?.filter(c => c.campaign?.status === 2).length || 0;
+    const paused = campaigns?.filter(c => c.campaign?.status === 3).length || 0;
+    const removed = campaigns?.filter(c => c.campaign?.status === 4).length || 0;
+
+    return { total, active, paused, removed };
+  }, [campaigns]);
 
   //console.log('JSON : ', campainsJson);
   return (
@@ -42,9 +49,10 @@ export function Campain() {
       <CampainTitleHeader
         name="רשימת קמפיינים"
         info={[
-          { label: '5 קבוצות מודעות', icon: ChartLine },
-          { label: '78 המרות', icon: ChartBar },
-          { label: 'סטטוס פעיל', icon: ChartPie },
+          { label: `${campaignStats.total} קמפיינים`, icon: ChartLine },
+          { label: `${campaignStats.active} פעילים`, icon: ChartBar },
+          { label: `${campaignStats.paused} מושהים`, icon: PauseCircle },
+          { label: `${campaignStats.removed} נמחקו`, icon: Trash2 },
         ]}
       />
 

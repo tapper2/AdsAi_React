@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState, useMemo } from 'react';
 import { Navbar, NavbarActions } from '@/partials/navbar/navbar';
 import {
   EllipsisVertical,
@@ -23,11 +23,50 @@ import { CampainTitleHeader } from './components/campainTitleHeader';
 import { ClicksTable } from '../components/tables/clicksTable';
 import { GroupData } from './data/AdsGroupData';
 import CampainKeyWords from './data/campainKeyWords';
-import CampainTable from '../components/tables/campainTable'
+import CampainTable from '../components/tables/campainTable';
+import { useCampaignsStore } from '../store/useCampaignsStore';
 
+import { mapCampaignsWithStatus } from '../services/campaignService';
 
 export function SingleCampain() {
-  const { name } = useParams();
+  const { name, id } = useParams();
+  const { date, getCampainById } = useCampaignsStore();
+  const [singleData, setSingleData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      getCampainById({
+        startDate: date.from,
+        endDate: date.to,
+        campaignId: id,
+      })
+        .then((data) => {
+          // מפה את הסטטוסים עבור ad_group
+          const mappedData = mapCampaignsWithStatus(data, 'ad_group');
+          setSingleData(mappedData);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }
+  }, [id, date.from, date.to, getCampainById]);
+
+  const headerInfo = useMemo(() => {
+    if (!singleData || singleData.length === 0) return [];
+    
+    // This assumes singleData is an array of ad groups or similar for one campaign
+    // Or maybe it's just one item. Let's assume it's like the campaigns list but for one ID.
+    const campaign = singleData[0]?.campaign || {};
+    const metrics = singleData[0]?.metrics || {};
+    
+    return [
+      { label: `${singleData.length} קבוצות מודעות`, icon: ChartLine },
+      { label: `${metrics.conversions || 0} המרות`, icon: ChartBar },
+      { label: `סטטוס ${campaign.statusName || 'לא ידוע'}`, icon: ChartPie },
+    ];
+  }, [singleData]);
+
   return (
     <div className="py-0 px-5">
       {/* //*************************
@@ -35,12 +74,8 @@ export function SingleCampain() {
        **************************** */}
 
       <CampainTitleHeader
-        name="קמפיין חדש לעוד מיסוי מקרקעין ומס שבח"
-        info={[
-          { label: '5 קבוצות מודעות', icon: ChartLine },
-          { label: '78 המרות', icon: ChartBar },
-          { label: 'סטטוס פעיל', icon: ChartPie },
-        ]}
+        name={singleData?.[0]?.campaign?.name || (loading ? "טוען נתונים..." : "קמפיין")}
+        info={headerInfo}
       />
 
       <Container>
@@ -64,8 +99,14 @@ export function SingleCampain() {
           </Navbar>
         </div>
 
-        {name == 'ads' && <CampainTable data={GroupData} />}
-        {name == 'clicks' && <ClicksTable data={CampainKeyWords} />}
+        {loading ? (
+          <div className="py-10 text-center">טוען נתונים...</div>
+        ) : (
+          <>
+            {name == 'ads' && <CampainTable data={singleData} />}
+            {name == 'searchwords' && <ClicksTable data={CampainKeyWords} />}
+          </>
+        )}
       </Container>
     </div>
   );

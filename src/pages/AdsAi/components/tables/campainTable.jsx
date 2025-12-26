@@ -34,7 +34,10 @@ const CampainTable = ({ data }) => {
 
   const columns = useMemo(
     () => [
+      tableColumn('סטטוס', 'סטטוס', 'statusName', 40, 'string', 'ad_group'),
       tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
+      tableColumn('עלות ממוצעת לקליק', 'CPC', 'average_cpc', 40, 'currency', 'metrics'),
+      tableColumn('אחוז הקלקות', 'CTR', 'ctr', 40, 'percent', 'metrics'),
       tableColumn('צפיות', 'צפיות', 'impressions', 40, 'int', 'metrics'),
       tableColumn('קליקים', 'קליקים', 'clicks', 40, 'int', 'metrics'),
       tableColumn('שם הקבוצה', 'שם הקבוצה', 'name', 140, 'string', 'ad_group'),

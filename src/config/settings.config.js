@@ -1,4 +1,5 @@
 export const APP_SETTINGS = {
+  global_url: 'http://localhost:3000/api/v1/',
   layout: 'demo3',
   container: 'fixed',
   layouts: {

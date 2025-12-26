@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarDays } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
-import { useMainStore } from "../store/useMainStore";
+import { useCampaignsStore } from "../store/useCampaignsStore";
 
 export function DateRangePicker() {
     const [isOpen, setIsOpen] = useState(false);
 
-    const date = useMainStore((state) => state.date);
-    const setDate = useMainStore((state) => state.setDate);
+    const date = useCampaignsStore((state) => state.date);
+    const setDate = useCampaignsStore((state) => state.setDate);
 
     const [tempDateRange, setTempDateRange] = useState(date);
 
@@ -48,6 +48,15 @@ export function DateRangePicker() {
             setDate({
                 from: new Date(2000, 0, 1),
                 to: endOfDay(today),
+            });
+            setIsOpen(false);
+            return;
+        }
+
+        if (daysBack == "1") {
+            setDate({
+                from: startOfDay(subDays(today, daysBack)),
+                to: endOfDay(subDays(today, daysBack)),
             });
             setIsOpen(false);
             return;

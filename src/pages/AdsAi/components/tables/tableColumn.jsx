@@ -11,8 +11,23 @@ export const tableColumn = (id, title, metricKey, size, type, arrType) => {
     id: id,
     accessorFn: (row) => {
       const dynamicMetricsObject = row[arrType] || {};
-      const value = dynamicMetricsObject[metricKey];
-      return type === 'int' ? (value != null ? +value : 0) : value;
+      let value = dynamicMetricsObject[metricKey];
+
+      // חישובים אוטומטיים אם השדות חסרים
+      if (value == null) {
+        if (metricKey === 'average_cpc') {
+          const cost = dynamicMetricsObject.cost_micros || 0;
+          const clicks = dynamicMetricsObject.clicks || 0;
+          value = clicks > 0 ? cost / clicks : 0;
+        } else if (metricKey === 'ctr') {
+          const clicks = dynamicMetricsObject.clicks || 0;
+          const impressions = dynamicMetricsObject.impressions || 0;
+          value = impressions > 0 ? clicks / impressions : 0;
+        }
+      }
+
+      if (type === 'int') return value != null ? +value : 0;
+      return value;
     },
     header: ({ column }) => (
       <DataGridColumnHeader
@@ -22,13 +37,24 @@ export const tableColumn = (id, title, metricKey, size, type, arrType) => {
       />
     ),
 
-    cell: ({ row }) => {
-      const dynamicMetricsObject = row.original?.[arrType] || {};
-      const metricValue = dynamicMetricsObject[metricKey];
+    cell: ({ getValue }) => {
+      const metricValue = getValue();
       let formattedValue = metricValue;
 
       if (type === 'int') {
         formattedValue = metricValue != null ? (+metricValue).toLocaleString('en-US') : '0';
+      }
+
+      if (type === 'currency') {
+        formattedValue = metricValue != null 
+          ? '\u20AA ' + (+metricValue / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          : '\u20AA 0.00';
+      }
+
+      if (type === 'percent') {
+        formattedValue = metricValue != null 
+          ? (+metricValue * 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%'
+          : '0.00%';
       }
 
       if (type === 'date') {
