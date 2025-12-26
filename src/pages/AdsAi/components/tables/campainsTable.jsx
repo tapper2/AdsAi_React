@@ -53,32 +53,34 @@ const CampainsTable = ({ data }) => {
   //     item['campaign'].name.toLowerCase().includes(searchQuery.toLowerCase()),
   //   );
   // }, [searchQuery, selectedStatuses]);
+  
   const filteredData = useMemo(() => {
+    if (!data) return [];
     return data.filter((item) => {
-      console.log('IT : ', item);
       // Filter by status
       const matchesStatus =
         !selectedStatuses?.length ||
-        selectedStatuses.includes(item.campaign.statusName);
+        selectedStatuses.includes(item.campaign?.statusName);
 
       // Filter by search query (case-insensitive)
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch =
         !searchQuery ||
-        item.member.name.toLowerCase().includes(searchLower) ||
-        item.member.tasks.toLowerCase().includes(searchLower) ||
-        item.location.name.toLowerCase().includes(searchLower);
+        item.campaign?.name?.toLowerCase().includes(searchLower) ||
+        item.campaign?.statusName?.toLowerCase().includes(searchLower);
 
       return matchesStatus && matchesSearch;
     });
-  }, [searchQuery, selectedStatuses]);
+  }, [data, searchQuery, selectedStatuses]);
 
   const statusCounts = useMemo(() => {
+    if (!data) return {};
     return data.reduce((acc, item) => {
-      acc[item.campaign.statusName] = (acc[item.campaign.statusName] || 0) + 1;
+      const status = item.campaign?.statusName || 'Unknown';
+      acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {});
-  }, []);
+  }, [data]);
 
   const handleStatusChange = (checked, value) => {
     setSelectedStatuses((prev = []) =>

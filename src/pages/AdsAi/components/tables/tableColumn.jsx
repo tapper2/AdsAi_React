@@ -5,13 +5,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format, parseISO } from 'date-fns';
 
 export const tableColumn = (id, title, metricKey, size, type, arrType) => {
-
+ 
+  
   return {
     id: id,
     accessorFn: (row) => {
-      const dynamicMetricsObject = row[arrType];
-      console.log("TYPE : ", arrType, dynamicMetricsObject[metricKey])
-      return +dynamicMetricsObject[metricKey];
+      const dynamicMetricsObject = row[arrType] || {};
+      const value = dynamicMetricsObject[metricKey];
+      return type === 'int' ? (value != null ? +value : 0) : value;
     },
     header: ({ column }) => (
       <DataGridColumnHeader
@@ -22,19 +23,32 @@ export const tableColumn = (id, title, metricKey, size, type, arrType) => {
     ),
 
     cell: ({ row }) => {
-      const dynamicMetricsObject = row.original[arrType];
+      const dynamicMetricsObject = row.original?.[arrType] || {};
       const metricValue = dynamicMetricsObject[metricKey];
-      let formattedValue = type == 'int' ? (+metricValue).toLocaleString('en-US') : metricValue;
+      let formattedValue = metricValue;
 
-      if (type == 'date') {
-        let dateObject = parseISO(formattedValue);
-        formattedValue = format(dateObject, 'dd-MM-yyyy');
+      if (type === 'int') {
+        formattedValue = metricValue != null ? (+metricValue).toLocaleString('en-US') : '0';
+      }
+
+      if (type === 'date') {
+        if (metricValue) {
+          try {
+            const dateObject = parseISO(metricValue);
+            formattedValue = format(dateObject, 'dd-MM-yyyy');
+          } catch (e) {
+            console.error('Error parsing date:', metricValue, e);
+            formattedValue = metricValue;
+          }
+        } else {
+          formattedValue = '-';
+        }
       }
 
       return (
         <div className="flex flex-col gap-2 text-right float-right">
           <span className="leading-none font-medium text-sm text-mono hover:text-primary">
-            {formattedValue}
+            {formattedValue || '-'}
           </span>
         </div>
       );

@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { PageNavbar } from '@/pages/account';
 import {
   Toolbar,
@@ -7,26 +7,32 @@ import {
   ToolbarHeading,
   ToolbarPageTitle,
 } from '@/partials/common/toolbar';
+import { ChartBar, ChartLine, ChartPie } from 'lucide-react';
 import { Link } from 'react-router';
 import { useSettings } from '@/providers/settings-provider';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/common/container';
-import campainsJson from '../../../data/campains_json';
+// import campainsJson from '../../../data/campains_json';
+import { CampainTitleHeader } from '../components/campainTitleHeader';
+import { StatisticQuebs } from '../components/statisticQuebs';
 import CampainsTable from '../components/tables/campainsTable';
 //import { AccountTeamMembersContent } from '.';
 import { CampaignsContent } from './components/card';
-import { StatisticQuebs } from '../components/statisticQuebs';
-import { CampainTitleHeader } from '../components/campainTitleHeader';
-import {
-  ChartLine,
-  ChartBar,
-  ChartPie,
-} from 'lucide-react';
-
+import { useCampaignsStore } from '../store/useCampaignsStore';
 
 export function Campain() {
   const { settings } = useSettings();
-  console.log('JSON : ', campainsJson);
+  const { campaigns, fetchCampaigns,fetchCampaignsData, loading, date } = useCampaignsStore();
+
+  useEffect(() => {
+    let campaigns = fetchCampaigns(date.from, date.to);
+    let campaignsData = fetchCampaignsData(date.from, date.to);
+    console.log("CAMPAIGNS : ", campaigns );
+    console.log("CAMPAIGNS DATA : ", campaignsData );
+    console.log("CAMPAIGNS : ", campaigns );
+  }, [fetchCampaigns,fetchCampaignsData, date.from, date.to ]);
+
+  //console.log('JSON : ', campainsJson);
   return (
     <div className="py-0 px-5">
       {/* //*************************
@@ -43,7 +49,6 @@ export function Campain() {
       />
 
       <Container>
-
         {/* //*************************
               קוביות סטטיסטיקה     
              **************************** */}
@@ -52,11 +57,10 @@ export function Campain() {
             <StatisticQuebs />
           </div>
         </div>
-        <div className="mt-[20px]" >
-          <CampainsTable data={campainsJson} />
+        <div className="mt-[20px]">
+          {loading ? <div>טוען נתונים...</div> : <CampainsTable data={campaigns} />}
         </div>
       </Container>
     </div>
   );
 }
-
