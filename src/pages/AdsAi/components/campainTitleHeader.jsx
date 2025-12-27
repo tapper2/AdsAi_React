@@ -3,7 +3,7 @@ import { Container } from "@/components/common/container";
 import { Toolbar, ToolbarActions, ToolbarHeading } from "@/layouts/demo1/components/toolbar";
 import { DateRangePicker } from "./DateRangePicker";
 
-export function CampainTitleHeader({ name, info }) {
+export function CampainTitleHeader({ name, info, children }) {
   const buildInfo = (info) =>
     info.map((item, index) => {
       const Icon = item.icon;
@@ -21,7 +21,10 @@ export function CampainTitleHeader({ name, info }) {
         <Toolbar>
           <ToolbarHeading title={name} description={buildInfo(info)} />
           <ToolbarActions>
-            <DateRangePicker />
+            <div className="flex items-center gap-2">
+              {children}
+              <DateRangePicker />
+            </div>
           </ToolbarActions>
         </Toolbar>
       </Container>

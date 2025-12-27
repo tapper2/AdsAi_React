@@ -10,8 +10,9 @@ import {
   ChartPie,
   MessagesSquare,
   Users,
+  ArrowRight
 } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toAbsoluteUrl } from '@/lib/helpers';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/common/container';
@@ -27,21 +28,23 @@ import CampainTable from '../components/tables/campainTable';
 import SearchTermsTable from '../components/tables/SearchTermsTable';
 import KeywordsTable from '../components/tables/KeywordsTable';
 import NegativeKeywordsTable from '../components/tables/NegativeKeywordsTable';
+import { AiInsightsModal } from '../components/AiInsightsModal';
 import { useCampaignsStore } from '../store/useCampaignsStore';
+import { Sparkles } from 'lucide-react';
 
 import { mapCampaignsWithStatus } from '../services/campaignService';
 
 export function SingleCampain() {
   const { name, id } = useParams();
+  const navigate = useNavigate();
   const { date, getCampainById, fetchSearchTerms, fetchKeywords, fetchNegativeKeywords } = useCampaignsStore();
   const [singleData, setSingleData] = useState([]);
   const [searchTermsData, setSearchTermsData] = useState([]);
   const [keywordsData, setKeywordsData] = useState([]);
   const [negativeKeywordsData, setNegativeKeywordsData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [keywordsLoading, setKeywordsLoading] = useState(false);
   const [negativeLoading, setNegativeLoading] = useState(false);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -58,41 +61,14 @@ export function SingleCampain() {
           setLoading(false);
         })
         .catch(() => setLoading(false));
-    }
-  }, [id, date.from, date.to, getCampainById]);
 
-  useEffect(() => {
-    if (id && name === 'keyWords') {
-      setSearchLoading(true);
-      fetchSearchTerms({
-        startDate: date.from,
-        endDate: date.to,
-        campaignId: id,
-      })
-        .then((data) => {
-          setSearchTermsData(data);
-          setSearchLoading(false);
-        })
-        .catch(() => setSearchLoading(false));
+      // טעינת נתונים ל-AI ברקע
+      fetchSearchTerms({ startDate: date.from, endDate: date.to, campaignId: id })
+        .then(setSearchTermsData);
+      fetchKeywords({ startDate: date.from, endDate: date.to, campaignId: id })
+        .then(data => setKeywordsData(mapCampaignsWithStatus(data, 'ad_group_criterion')));
     }
-  }, [id, name, date.from, date.to, fetchSearchTerms]);
-
-  useEffect(() => {
-    if (id && name === 'searchWords') {
-      setKeywordsLoading(true);
-      fetchKeywords({
-        startDate: date.from,
-        endDate: date.to,
-        campaignId: id,
-      })
-        .then((data) => {
-          const mappedData = mapCampaignsWithStatus(data, 'ad_group_criterion');
-          setKeywordsData(mappedData);
-          setKeywordsLoading(false);
-        })
-        .catch(() => setKeywordsLoading(false));
-    }
-  }, [id, name, date.from, date.to, fetchKeywords]);
+  }, [id, date.from, date.to, getCampainById, fetchSearchTerms, fetchKeywords]);
 
   useEffect(() => {
     if (id && name === 'negativeWords') {
@@ -133,6 +109,32 @@ export function SingleCampain() {
       <CampainTitleHeader
         name={singleData?.[0]?.campaign?.name || (loading ? "טוען נתונים..." : "קמפיין")}
         info={headerInfo}
+      >
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => navigate('/campain')}
+          className="ml-2"
+        >
+          <ArrowRight className="size-4 ml-2" />
+          חזרה לעמוד קמפיינים
+        </Button>
+        <Button 
+          variant="primary" 
+          size="sm" 
+          className="bg-primary hover:bg-primary/90 text-white"
+          onClick={() => setIsAiModalOpen(true)}
+        >
+          <Sparkles className="size-4 mr-2" />
+          תובנות AI
+        </Button>
+      </CampainTitleHeader>
+
+      <AiInsightsModal 
+        isOpen={isAiModalOpen}
+        onClose={() => setIsAiModalOpen(false)}
+        searchTerms={searchTermsData}
+        currentKeywords={keywordsData}
       />
 
       <Container>
@@ -156,14 +158,16 @@ export function SingleCampain() {
           </Navbar>
         </div>
 
-        {loading || searchLoading || keywordsLoading || negativeLoading ? (
+        {loading ? (
           <div className="py-10 text-center">טוען נתונים...</div>
         ) : (
           <>
             {name == 'ads' && <CampainTable data={singleData} />}
             {name == 'keyWords' && <SearchTermsTable data={searchTermsData} />}
             {name == 'searchWords' && <KeywordsTable data={keywordsData} />}
-            {name == 'negativeWords' && <NegativeKeywordsTable data={negativeKeywordsData} />}
+            {name == 'negativeWords' && (
+              negativeLoading ? <div className="py-10 text-center">טוען מילים שליליות...</div> : <NegativeKeywordsTable data={negativeKeywordsData} />
+            )}
           </>
         )}
       </Container>
