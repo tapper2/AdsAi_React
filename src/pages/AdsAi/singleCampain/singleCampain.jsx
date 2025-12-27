@@ -37,8 +37,9 @@ import { mapCampaignsWithStatus } from '../services/campaignService';
 export function SingleCampain() {
   const { name, id } = useParams();
   const navigate = useNavigate();
-  const { date, getCampainById, fetchSearchTerms, fetchKeywords, fetchNegativeKeywords } = useCampaignsStore();
+  const { date, getCampainById, fetchSearchTerms, fetchKeywords, fetchNegativeKeywords, getCampaignInfoById } = useCampaignsStore();
   const [singleData, setSingleData] = useState([]);
+  const [campaignInfo, setCampaignInfo] = useState(null);
   const [searchTermsData, setSearchTermsData] = useState([]);
   const [keywordsData, setKeywordsData] = useState([]);
   const [negativeKeywordsData, setNegativeKeywordsData] = useState([]);
@@ -49,6 +50,17 @@ export function SingleCampain() {
   useEffect(() => {
     if (id) {
       setLoading(true);
+      
+      // קריאה למידע הכללי של הקמפיין (עבור השם)
+      getCampaignInfoById({
+        startDate: date.from,
+        endDate: date.to,
+        campaignId: id,
+      }).then(data => {
+        const info = Array.isArray(data) ? data[0] : data;
+        setCampaignInfo(info);
+      });
+
       getCampainById({
         startDate: date.from,
         endDate: date.to,
@@ -68,7 +80,7 @@ export function SingleCampain() {
       fetchKeywords({ startDate: date.from, endDate: date.to, campaignId: id })
         .then(data => setKeywordsData(mapCampaignsWithStatus(data, 'ad_group_criterion')));
     }
-  }, [id, date.from, date.to, getCampainById, fetchSearchTerms, fetchKeywords]);
+  }, [id, date.from, date.to, getCampainById, fetchSearchTerms, fetchKeywords, getCampaignInfoById]);
 
   useEffect(() => {
     if (id && name === 'negativeWords') {
@@ -88,17 +100,26 @@ export function SingleCampain() {
   const headerInfo = useMemo(() => {
     if (!singleData || singleData.length === 0) return [];
     
-    // This assumes singleData is an array of ad groups or similar for one campaign
-    // Or maybe it's just one item. Let's assume it's like the campaigns list but for one ID.
-    const campaign = singleData[0]?.campaign || {};
-    const metrics = singleData[0]?.metrics || {};
+    const metrics = campaignInfo?.metrics || {};
+    const campaign = campaignInfo?.campaign || {};
     
     return [
       { label: `${singleData.length} קבוצות מודעות`, icon: ChartLine },
       { label: `${metrics.conversions || 0} המרות`, icon: ChartBar },
-      { label: `סטטוס ${campaign.statusName || 'לא ידוע'}`, icon: ChartPie },
+      { label: `סטטוס ${campaign.statusName || 'פעיל'}`, icon: ChartPie },
     ];
-  }, [singleData]);
+  }, [singleData, campaignInfo]);
+
+  const campaignName = useMemo(() => {
+    // לקיחת השם ישירות ממידע הקמפיין שמתקבל מ-getCampaignInfoById
+    const nameFromInfo = campaignInfo?.campaign?.name;
+    
+    if (nameFromInfo) return `קמפיין - ${nameFromInfo}`;
+    
+    if (loading && (!singleData || singleData.length === 0)) return "טוען נתונים...";
+    
+    return "קמפיין";
+  }, [campaignInfo, singleData, loading]);
 
   return (
     <div className="py-0 px-5">
@@ -107,7 +128,7 @@ export function SingleCampain() {
        **************************** */}
 
       <CampainTitleHeader
-        name={singleData?.[0]?.campaign?.name || (loading ? "טוען נתונים..." : "קמפיין")}
+        name={campaignName}
         info={headerInfo}
       >
         <Button 

@@ -117,4 +117,55 @@ export const useCampaignsStore = create((set) => ({
       throw error;
     }
   },
+  // פונקציות עבור Ad Group
+  getAdGroupInfoById: async ({ startDate, endDate, adGroupId }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}getAdGroupInfoById`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+        adGroupId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching ad group info by id:', error);
+      throw error;
+    }
+  },
+  fetchAdGroupKeywords: async ({ startDate, endDate, adGroupId }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}adGroupListKeywords`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+        adGroupId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching ad group keywords:', error);
+      throw error;
+    }
+  },
+  fetchAdGroupSearchTerms: async ({ startDate, endDate, adGroupId }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}adGroupListSearchTerms`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+        adGroupId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching ad group search terms:', error);
+      throw error;
+    }
+  },
+  fetchAdGroupNegativeKeywords: async ({ adGroupId }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}adGroupListNegativeKeywords`, {
+        adGroupId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching ad group negative keywords:', error);
+      throw error;
+    }
+  },
 }));

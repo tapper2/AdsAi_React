@@ -3,36 +3,32 @@ import { toAbsoluteUrl } from '@/lib/helpers';
 import { Card, CardContent } from '@/components/ui/card';
 import { useParams } from 'react-router-dom';
 import { useCampaignsStore } from '../../store/useCampaignsStore';
-import CampainDetailsData from '../data/CampainDetailsData';
 
-const CampainStatisticQuebs = () => {
-  const { id } = useParams();
-  const { date, getCampaignInfoById } = useCampaignsStore();
+const AdGroupStatisticQuebs = () => {
+  const { adGroupId } = useParams();
+  const { date, getAdGroupInfoById } = useCampaignsStore();
   const [infoData, setInfoData] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (id) {
+    if (adGroupId) {
       setLoading(true);
-      getCampaignInfoById({
+      getAdGroupInfoById({
         startDate: date.from,
         endDate: date.to,
-        campaignId: id,
+        adGroupId: adGroupId,
       })
         .then((data) => {
-          if (data) {
-            setInfoData(data);
-          }
+          setInfoData(data);
           setLoading(false);
         })
         .catch(() => setLoading(false));
     }
-  }, [id, date.from, date.to, getCampaignInfoById]);
+  }, [adGroupId, date.from, date.to, getAdGroupInfoById]);
 
-  // מניעת מצב שהקוביות מתאפסות בזמן טעינה אם כבר יש מידע קודם
-  const hasData = infoData && (Array.isArray(infoData) ? infoData.length > 0 : Object.keys(infoData).length > 0);
-  const displayData = hasData ? infoData : CampainDetailsData;
-  const metrics = (Array.isArray(displayData) ? displayData[0] : displayData)?.metrics || {};
+  // infoData is expected to be an array or object containing metrics
+  const displayData = Array.isArray(infoData) ? infoData[0] : infoData;
+  const metrics = displayData?.metrics || {};
 
   const cost = Math.round(
     (metrics.cost_micros || 0) / 1_000_000
@@ -73,20 +69,18 @@ const CampainStatisticQuebs = () => {
   ];
 
   const qubesColors = [
-    "#E0F2FE", // 0: כחול רך (צפיות)
-    "#F3E8FF", // 1: סגול רך (ביצועים)
-    "#FEF3C7", // 2: צהוב רך (מעורבות)
-    "#D1FAE5", // 3: ירוק רך (צמיחה/מנויים)
-    "#F3F4F6", // 4: אפור רך (קהל/סטרימינג)
-    "#FCE7F6", // 5: ורוד רך (קהילה/חברתי)
+    "#E0F2FE", // 0: כחול רך
+    "#F3E8FF", // 1: סגול רך
+    "#FEF3C7", // 2: צהוב רך
+    "#D1FAE5", // 3: ירוק רך
+    "#F3F4F6", // 4: אפור רך
+    "#FCE7F6", // 5: ורוד רך
   ];
 
-
   const renderItem = (item, index) => {
-    const color = "#EFF6FF"
     return (
       <Card key={index}>
-        <CardContent className="p-0 pt-3 flex flex-col  justify-between gap-6 h-full bg-cover rtl:bg-[left_top_-1.7rem] bg-[right_top_-1.7rem] bg-no-repeat channel-stats-bg" style={{ backgroundColor: qubesColors[index] }}>
+        <CardContent className="p-0 pt-3 flex flex-col justify-between gap-6 h-full bg-cover rtl:bg-[left_top_-1.7rem] bg-[right_top_-1.7rem] bg-no-repeat channel-stats-bg" style={{ backgroundColor: qubesColors[index] }}>
           <div className="flex flex-col gap-1 pb-4 px-5">
             <span className="text-3xl font-semibold text-mono">
               {item.info}
@@ -99,6 +93,8 @@ const CampainStatisticQuebs = () => {
       </Card>
     );
   };
+
+  if (loading) return <div className="col-span-6 text-center py-4">טוען סטטיסטיקה...</div>;
 
   return (
     <Fragment>
@@ -120,4 +116,5 @@ const CampainStatisticQuebs = () => {
   );
 };
 
-export { CampainStatisticQuebs };
+export { AdGroupStatisticQuebs };
+

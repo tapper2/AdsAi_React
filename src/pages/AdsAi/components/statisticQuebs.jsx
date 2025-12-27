@@ -4,27 +4,31 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useCampaignsStore } from '../store/useCampaignsStore';
 
 const StatisticQuebs = () => {
-  const { campaignsData, campaignsDataLoading } = useCampaignsStore();
+  const { campaignsData, campaignsDataLoading, error } = useCampaignsStore();
 
   const stats = useMemo(() => {
-    console.log("M1 : ", campaignsData);
+    // בדיקה אם קיבלנו אובייקט בודד עם מטריקות (כמו בלוג ששלחת) או מערך
+    const isSingleObject = campaignsData && campaignsData.metrics && !Array.isArray(campaignsData);
+    const dataArray = isSingleObject ? [campaignsData] : (Array.isArray(campaignsData) ? campaignsData : (campaignsData?.data || []));
     
-    if (campaignsDataLoading) return null;
+    console.log("STAT_LOG: Final Data for calculation:", dataArray);
+    
+    if (campaignsDataLoading && dataArray.length === 0) return null;
 
-    if (!campaignsData || !Array.isArray(campaignsData) || campaignsData.length === 0) {
+    if (dataArray.length === 0) {
       return {
-        clicks: 0,
-        cost: 0,
-        impressions: 0,
-        conversions: 0,
-        cpc: 0,
-        ctr: 0,
+        clicks: '0',
+        cost: '0',
+        impressions: '0',
+        conversions: '0',
+        cpc: '0.00',
+        ctr: '0.00',
       };
     }
 
-    const totals = campaignsData.reduce(
+    const totals = dataArray.reduce(
       (acc, item) => {
-        const metrics = item.metrics || {};
+        const metrics = item.metrics || item; 
         acc.clicks += Number(metrics.clicks || 0);
         acc.impressions += Number(metrics.impressions || 0);
         acc.conversions += Number(metrics.conversions || 0);
@@ -51,9 +55,18 @@ const StatisticQuebs = () => {
 
   console.log("M3 : ", stats);
 
-  if (campaignsDataLoading) {
+  const isSingleObject = campaignsData && campaignsData.metrics && !Array.isArray(campaignsData);
+  const dataArray = isSingleObject ? [campaignsData] : (Array.isArray(campaignsData) ? campaignsData : (campaignsData?.data || []));
+  const isLoading = campaignsDataLoading && dataArray.length === 0;
+
+  if (isLoading) {
     return <div className="col-span-6 text-center py-4">טוען סטטיסטיקה...</div>;
   }
+
+  if (error && dataArray.length === 0) {
+    return <div className="col-span-6 text-center py-4 text-red-500">שגיאה בטעינת נתונים: {error}</div>;
+  }
+
   const items = [
     { info: stats?.clicks || 0, desc: 'קליקים' },
     { info: stats?.impressions || 0, desc: 'הופעות' },

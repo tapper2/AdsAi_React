@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from '@tanstack/react-table';
 import { Card, CardFooter, CardHeader, CardTable, CardHeading, CardTitle, CardToolbar } from '@/components/ui/card';
 import { DataGrid, useDataGrid } from '@/components/ui/data-grid';
@@ -10,7 +11,7 @@ import { DataGridTable, DataGridTableHead } from '@/components/ui/data-grid-tabl
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { tableColumn } from './tableColumn';
-import { Search, Settings2, SquarePen, Trash2, X } from 'lucide-react';
+import { Search, Settings2, SquarePen, Trash2, X, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DataGridColumnVisibility } from '@/components/ui/data-grid-column-visibility';
@@ -19,6 +20,8 @@ import { DataGridColumnVisibility } from '@/components/ui/data-grid-column-visib
 
 
 const CampainTable = ({ data }) => {
+  const navigate = useNavigate();
+  const { id: campaignId } = useParams();
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 6, });
   const [sorting, setSorting] = useState([{ id: 'updated_at', desc: true }]);
   const [rowSelection, setRowSelection] = useState({});
@@ -41,8 +44,24 @@ const CampainTable = ({ data }) => {
       tableColumn('צפיות', 'צפיות', 'impressions', 40, 'int', 'metrics'),
       tableColumn('קליקים', 'קליקים', 'clicks', 40, 'int', 'metrics'),
       tableColumn('שם הקבוצה', 'שם הקבוצה', 'name', 140, 'string', 'ad_group'),
+      {
+        id: 'view',
+        header: () => <div className="text-center">צפייה</div>,
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(`/singleAdGroup/keyWords/${campaignId}/${row.original.ad_group?.id}`)}
+            >
+              <Eye className="size-4" />
+            </Button>
+          </div>
+        ),
+        size: 40,
+      },
     ],
-    [],
+    [navigate, campaignId],
   );
 
   const table = useReactTable({

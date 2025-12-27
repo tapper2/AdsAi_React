@@ -48,7 +48,6 @@ const KeywordsTable = ({ data }) => {
 
   const columns = useMemo(
     () => [
-      tableColumn('קבוצת מודעות', 'קבוצת מודעות', 'name', 120, 'string', 'ad_group'),
       tableColumn('סטטוס', 'סטטוס', 'statusName', 60, 'string', 'ad_group_criterion'),
       tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
       tableColumn('עלות ממוצעת לקליק', 'CPC', 'average_cpc', 60, 'currency', 'metrics'),

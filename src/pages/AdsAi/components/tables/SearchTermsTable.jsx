@@ -49,7 +49,6 @@ const SearchTermsTable = ({ data }) => {
 
   const columns = useMemo(
     () => [
-      tableColumn('קבוצת מודעות', 'קבוצת מודעות', 'name', 120, 'string', 'ad_group'),
       tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
       tableColumn('עלות ממוצעת לקליק', 'CPC', 'average_cpc', 60, 'currency', 'metrics'),
       tableColumn('אחוז הקלקות', 'CTR', 'ctr', 60, 'percent', 'metrics'),
