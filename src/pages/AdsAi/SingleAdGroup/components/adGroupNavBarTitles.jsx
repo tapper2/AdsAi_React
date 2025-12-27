@@ -8,6 +8,7 @@ const AdGroupNavBarTitles = () => {
     { title: 'מילות מפתח', path: `/singleAdGroup/keyWords/${campaignId}/${adGroupId}` },
     { title: 'מונחי חיפוש', path: `/singleAdGroup/searchWords/${campaignId}/${adGroupId}` },
     { title: 'מילים שליליות', path: `/singleAdGroup/negativeWords/${campaignId}/${adGroupId}` },
+    { title: 'מודעות', path: `/singleAdGroup/ads/${campaignId}/${adGroupId}` },
   ];
 
   if (AdGroupNavBarTitlesData && adGroupId) {

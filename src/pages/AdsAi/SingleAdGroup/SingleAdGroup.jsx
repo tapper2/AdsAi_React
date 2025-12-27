@@ -16,6 +16,7 @@ import { CampainTitleHeader } from '../components/campainTitleHeader';
 import SearchTermsTable from '../components/tables/SearchTermsTable';
 import KeywordsTable from '../components/tables/KeywordsTable';
 import NegativeKeywordsTable from '../components/tables/NegativeKeywordsTable';
+import AdsCardList from '../components/tables/AdsCardList';
 import { AiInsightsModal } from '../components/AiInsightsModal';
 import { useCampaignsStore } from '../store/useCampaignsStore';
 import { mapCampaignsWithStatus } from '../services/campaignService';
@@ -28,6 +29,7 @@ export function SingleAdGroup() {
     fetchAdGroupKeywords, 
     fetchAdGroupSearchTerms, 
     fetchAdGroupNegativeKeywords,
+    fetchAdGroupAds,
     getAdGroupInfoById
   } = useCampaignsStore();
 
@@ -35,6 +37,7 @@ export function SingleAdGroup() {
   const [keywordsData, setKeywordsData] = useState([]);
   const [searchTermsData, setSearchTermsData] = useState([]);
   const [negativeKeywordsData, setNegativeKeywordsData] = useState([]);
+  const [adsData, setAdsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
@@ -60,8 +63,11 @@ export function SingleAdGroup() {
       
       fetchAdGroupNegativeKeywords({ adGroupId })
         .then(data => setNegativeKeywordsData(mapCampaignsWithStatus(data, 'campaign_criterion')));
+
+      fetchAdGroupAds({ startDate: date.from, endDate: date.to, adGroupId })
+        .then(data => setAdsData(mapCampaignsWithStatus(data, 'ad_group_ad')));
     }
-  }, [adGroupId, date.from, date.to, getAdGroupInfoById, fetchAdGroupKeywords, fetchAdGroupSearchTerms, fetchAdGroupNegativeKeywords]);
+  }, [adGroupId, date.from, date.to, getAdGroupInfoById, fetchAdGroupKeywords, fetchAdGroupSearchTerms, fetchAdGroupNegativeKeywords, fetchAdGroupAds]);
 
   const headerInfo = useMemo(() => {
     if (!adGroupInfo) return [];
@@ -134,6 +140,7 @@ export function SingleAdGroup() {
             {name === 'keyWords' && <KeywordsTable data={keywordsData} />}
             {name === 'searchWords' && <SearchTermsTable data={searchTermsData} />}
             {name === 'negativeWords' && <NegativeKeywordsTable data={negativeKeywordsData} />}
+            {name === 'ads' && <AdsCardList data={adsData} />}
           </>
         )}
       </Container>

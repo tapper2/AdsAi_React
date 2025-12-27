@@ -168,6 +168,32 @@ export const useCampaignsStore = create((set) => ({
       throw error;
     }
   },
+  fetchAdGroupAds: async ({ startDate, endDate, adGroupId }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}adGroupListAds`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+        adGroupId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching ad group ads:', error);
+      throw error;
+    }
+  },
+  analyzeAdGroupAds: async ({ startDate, endDate, adGroupId }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}analyzeAdGroupAds`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+        adGroupId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error analyzing ad group ads:', error);
+      throw error;
+    }
+  },
   // פונקציות עבור Keyword Tool
   getKeywordIdeas: async ({ keywords, url }) => {
     try {

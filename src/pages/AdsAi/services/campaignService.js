@@ -17,12 +17,23 @@ export const getStatusName = (statusId) => {
 
 /**
  * ממפה נתוני קמפיינים ומוסיף להם statusName
- * @param {Array} data 
+ * @param {Array|Object} data 
  * @param {string} campaignKey - המפתח שבו נמצא אובייקט הקמפיין (ברירת מחדל: 'campaign')
  * @returns {Array}
  */
 export const mapCampaignsWithStatus = (data, campaignKey = 'campaign') => {
-  const items = Array.isArray(data) ? data : (data?.data || []);
+  let items = [];
+  
+  if (Array.isArray(data)) {
+    items = data;
+  } else if (data?.data) {
+    items = data.data;
+  } else if (data?.results) {
+    items = data.results;
+  } else if (data && typeof data === 'object' && (data[campaignKey] || data.metrics)) {
+    // אם זה אובייקט בודד שמכיל את המפתח המבוקש או מטריקות, נעטוף אותו במערך
+    items = [data];
+  }
   
   return items.map((item) => {
     const campaign = item[campaignKey];
