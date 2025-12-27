@@ -62,6 +62,7 @@ export const MENU_SIDEBAR = [
     children: [
       { title: 'Campains', path: '/campain/' },
       { title: 'Single Campain', path: '/singleCampain/ads' },
+      { title: 'כלי מילות מפתח', path: '/keyword-tool' },
     ],
   },
   {

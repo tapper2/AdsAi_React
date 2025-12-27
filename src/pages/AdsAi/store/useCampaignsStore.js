@@ -168,6 +168,19 @@ export const useCampaignsStore = create((set) => ({
       throw error;
     }
   },
+  // פונקציות עבור Keyword Tool
+  getKeywordIdeas: async ({ keywords, url }) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}getKeywordIdeas`, {
+        keywords,
+        url,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching keyword ideas:', error);
+      throw error;
+    }
+  },
   // פונקציות גלובליות לכל החשבון (עבור הטאבים בעמוד הראשי)
   fetchAllAdGroups: async (startDate, endDate) => {
     try {
@@ -183,7 +196,7 @@ export const useCampaignsStore = create((set) => ({
   },
   fetchAllKeywords: async (startDate, endDate) => {
     try {
-      const response = await axios.post(`${APP_SETTINGS.global_url}allKeywords`, {
+      const response = await axios.post(`${APP_SETTINGS.global_url}allKeywordsMerged`, {
         startDate: format(new Date(startDate), 'yyyy-MM-dd'),
         endDate: format(new Date(endDate), 'yyyy-MM-dd'),
       });

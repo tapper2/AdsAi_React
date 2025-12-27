@@ -67,6 +67,7 @@ const KeywordsTable = ({ data }) => {
         tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
         tableColumn('עלות ממוצעת לקליק', 'CPC', 'average_cpc', 60, 'currency', 'metrics'),
         tableColumn('אחוז הקלקות', 'CTR', 'ctr', 60, 'percent', 'metrics'),
+        tableColumn('ציון איכות', 'ציון איכות', 'quality_score', 60, 'int', 'ad_group_criterion.quality_info'),
         tableColumn('צפיות', 'צפיות', 'impressions', 60, 'int', 'metrics'),
         tableColumn('קליקים', 'קליקים', 'clicks', 60, 'int', 'metrics'),
         tableColumn('מילת מפתח', 'מילת מפתח', 'text', 160, 'string', 'ad_group_criterion.keyword')

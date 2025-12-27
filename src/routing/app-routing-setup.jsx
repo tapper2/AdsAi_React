@@ -96,6 +96,7 @@ import { Navigate, Route, Routes } from 'react-router';
 import { Campain } from '../pages/AdsAi/campaigns/campains';
 import { SingleCampain } from '../pages/AdsAi/SingleCampain/SingleCampain';
 import { SingleAdGroup } from '../pages/AdsAi/SingleAdGroup/SingleAdGroup';
+import { KeywordTool } from '../pages/AdsAi/KeywordTool/KeywordTool';
 
 
 export function AppRoutingSetup() {
@@ -106,6 +107,7 @@ export function AppRoutingSetup() {
           <Route path="/campain/:name?" element={<Campain />} />
           <Route path="/singleCampain/:name/:id?" element={<SingleCampain />} />
           <Route path="/singleAdGroup/:name/:campaignId/:adGroupId?" element={<SingleAdGroup />} />
+          <Route path="/keyword-tool" element={<KeywordTool />} />
           <Route path="/" element={<DefaultPage />} />
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
           <Route
