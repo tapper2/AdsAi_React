@@ -103,7 +103,7 @@ export function AppRoutingSetup() {
     <Routes>
       <Route element={<RequireAuth />}>
         <Route element={<Demo1Layout />}>
-          <Route path="/campain" element={<Campain />} />
+          <Route path="/campain/:name?" element={<Campain />} />
           <Route path="/singleCampain/:name/:id?" element={<SingleCampain />} />
           <Route path="/singleAdGroup/:name/:campaignId/:adGroupId?" element={<SingleAdGroup />} />
           <Route path="/" element={<DefaultPage />} />

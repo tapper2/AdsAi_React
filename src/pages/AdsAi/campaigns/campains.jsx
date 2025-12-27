@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { PageNavbar } from '@/pages/account';
 import {
   Toolbar,
@@ -8,27 +8,74 @@ import {
   ToolbarPageTitle,
 } from '@/partials/common/toolbar';
 import { ChartBar, ChartLine, ChartPie, Trash2, PauseCircle } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useSettings } from '@/providers/settings-provider';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/common/container';
-// import campainsJson from '../../../data/campains_json';
+import { Navbar } from '@/partials/navbar/navbar';
 import { CampainTitleHeader } from '../components/campainTitleHeader';
 import { StatisticQuebs } from '../components/statisticQuebs';
 import CampainsTable from '../components/tables/campainsTable';
-//import { AccountTeamMembersContent } from '.';
-import { CampaignsContent } from './components/card';
+import CampainTable from '../components/tables/campainTable';
+import KeywordsTable from '../components/tables/KeywordsTable';
+import SearchTermsTable from '../components/tables/SearchTermsTable';
+import NegativeKeywordsTable from '../components/tables/NegativeKeywordsTable';
+import { MainCampainNavBarTitles } from './components/mainCampainNavBarTitles';
 import { useCampaignsStore } from '../store/useCampaignsStore';
 
 export function Campain() {
+  const { name = 'list' } = useParams();
+  const navigate = useNavigate();
   const { settings } = useSettings();
-  const { campaigns, fetchCampaigns, fetchCampaignsData, loading, date } = useCampaignsStore();
+  const { 
+    campaigns, 
+    fetchCampaigns, 
+    fetchCampaignsData, 
+    loading, 
+    date,
+    fetchAllAdGroups,
+    fetchAllKeywords,
+    fetchAllSearchTerms,
+    fetchAllNegativeKeywords
+  } = useCampaignsStore();
+
+  const [adGroupsData, setAdGroupsData] = useState([]);
+  const [keywordsData, setKeywordsData] = useState([]);
+  const [searchTermsData, setSearchTermsData] = useState([]);
+  const [negativeKeywordsData, setNegativeKeywordsData] = useState([]);
+  const [tabLoading, setTabLoading] = useState(false);
 
   useEffect(() => {
-    // קוראים לפונקציות מהסטור ללא השמה למשתנה מקומי שמסתיר את הסטייט
     fetchCampaigns(date.from, date.to);
     fetchCampaignsData(date.from, date.to);
   }, [fetchCampaigns, fetchCampaignsData, date.from, date.to]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setTabLoading(true);
+      try {
+        if (name === 'adGroups') {
+          const data = await fetchAllAdGroups(date.from, date.to);
+          setAdGroupsData(data);
+        } else if (name === 'keyWords') {
+          const data = await fetchAllKeywords(date.from, date.to);
+          setKeywordsData(data);
+        } else if (name === 'searchWords') {
+          const data = await fetchAllSearchTerms(date.from, date.to);
+          setSearchTermsData(data);
+        } else if (name === 'negativeWords') {
+          const data = await fetchAllNegativeKeywords();
+          setNegativeKeywordsData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching tab data:", error);
+      } finally {
+        setTabLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [name, date.from, date.to, fetchAllAdGroups, fetchAllKeywords, fetchAllSearchTerms, fetchAllNegativeKeywords]);
 
   const campaignStats = useMemo(() => {
     const total = campaigns?.length || 0;
@@ -39,13 +86,8 @@ export function Campain() {
     return { total, active, paused, removed };
   }, [campaigns]);
 
-  //console.log('JSON : ', campainsJson);
   return (
     <div className="py-0 px-5">
-      {/* //*************************
-               קריאה לכותרת שם הקמפיין
-             **************************** */}
-
       <CampainTitleHeader
         name="רשימת קמפיינים"
         info={[
@@ -57,16 +99,30 @@ export function Campain() {
       />
 
       <Container>
-        {/* //*************************
-              קוביות סטטיסטיקה     
-             **************************** */}
         <div className="lg:col-span-1">
           <div className="grid grid-cols-6 gap-5 lg:gap-7.5 h-full items-stretch">
             <StatisticQuebs />
           </div>
         </div>
+
         <div className="mt-[20px]">
-          {loading ? <div>טוען נתונים...</div> : <CampainsTable data={campaigns} />}
+          <Navbar>
+            <MainCampainNavBarTitles />
+          </Navbar>
+        </div>
+
+        <div className="mt-[20px]">
+          {tabLoading || loading ? (
+            <div className="py-10 text-center">טוען נתונים...</div>
+          ) : (
+            <>
+              {name === 'list' && <CampainsTable data={campaigns} />}
+              {name === 'adGroups' && <CampainTable data={adGroupsData} />}
+              {name === 'keyWords' && <KeywordsTable data={keywordsData} />}
+              {name === 'searchWords' && <SearchTermsTable data={searchTermsData} />}
+              {name === 'negativeWords' && <NegativeKeywordsTable data={negativeKeywordsData} />}
+            </>
+          )}
         </div>
       </Container>
     </div>

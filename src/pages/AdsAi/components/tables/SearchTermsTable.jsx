@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -28,6 +29,7 @@ import { Button } from '@/components/ui/button';
 import { DataGridColumnVisibility } from '@/components/ui/data-grid-column-visibility';
 
 const SearchTermsTable = ({ data }) => {
+  const { campaignId, adGroupId } = useParams();
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [sorting, setSorting] = useState([{ id: 'clicks', desc: true }]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,23 +42,39 @@ const SearchTermsTable = ({ data }) => {
     return data.filter((item) => {
       const searchTerm = item.search_term_view?.search_term || '';
       const adGroupName = item.ad_group?.name || '';
+      const campaignName = item.campaign?.name || '';
       return (
         searchTerm.toLowerCase().includes(lowerQuery) ||
-        adGroupName.toLowerCase().includes(lowerQuery)
+        adGroupName.toLowerCase().includes(lowerQuery) ||
+        campaignName.toLowerCase().includes(lowerQuery)
       );
     });
   }, [data, searchQuery]);
 
   const columns = useMemo(
-    () => [
-      tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
-      tableColumn('עלות ממוצעת לקליק', 'CPC', 'average_cpc', 60, 'currency', 'metrics'),
-      tableColumn('אחוז הקלקות', 'CTR', 'ctr', 60, 'percent', 'metrics'),
-      tableColumn('צפיות', 'צפיות', 'impressions', 60, 'int', 'metrics'),
-      tableColumn('קליקים', 'קליקים', 'clicks', 60, 'int', 'metrics'),
-      tableColumn('מונח חיפוש', 'מונח חיפוש', 'search_term', 160, 'string', 'search_term_view'),
-    ],
-    [],
+    () => {
+      const cols = [];
+
+      // אם אנחנו בתצוגה גלובלית, נוסיף שם קמפיין וקבוצה
+      if (!campaignId) {
+        cols.push(tableColumn('קמפיין', 'קמפיין', 'name', 120, 'string', 'campaign'));
+      }
+      if (!adGroupId) {
+        cols.push(tableColumn('קבוצת מודעות', 'קבוצת מודעות', 'name', 120, 'string', 'ad_group'));
+      }
+
+      cols.push(
+        tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
+        tableColumn('עלות ממוצעת לקליק', 'CPC', 'average_cpc', 60, 'currency', 'metrics'),
+        tableColumn('אחוז הקלקות', 'CTR', 'ctr', 60, 'percent', 'metrics'),
+        tableColumn('צפיות', 'צפיות', 'impressions', 60, 'int', 'metrics'),
+        tableColumn('קליקים', 'קליקים', 'clicks', 60, 'int', 'metrics'),
+        tableColumn('מונח חיפוש', 'מונח חיפוש', 'search_term', 160, 'string', 'search_term_view')
+      );
+
+      return cols;
+    },
+    [campaignId, adGroupId],
   );
 
   const table = useReactTable({

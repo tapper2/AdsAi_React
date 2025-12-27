@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -27,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { DataGridColumnVisibility } from '@/components/ui/data-grid-column-visibility';
 
 const NegativeKeywordsTable = ({ data }) => {
+  const { campaignId, adGroupId } = useParams();
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [sorting, setSorting] = useState([{ id: 'text', desc: false }]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,18 +40,38 @@ const NegativeKeywordsTable = ({ data }) => {
     const lowerQuery = searchQuery.toLowerCase();
     return data.filter((item) => {
       const keywordText = item.campaign_criterion?.keyword?.text || '';
-      return keywordText.toLowerCase().includes(lowerQuery);
+      const adGroupName = item.ad_group?.name || '';
+      const campaignName = item.campaign?.name || '';
+      return (
+        keywordText.toLowerCase().includes(lowerQuery) ||
+        adGroupName.toLowerCase().includes(lowerQuery) ||
+        campaignName.toLowerCase().includes(lowerQuery)
+      );
     });
   }, [data, searchQuery]);
 
   const columns = useMemo(
-    () => [
-      tableColumn('סוג התאמה', 'סוג התאמה', 'match_type', 100, 'string', 'campaign_criterion.keyword'),
-      tableColumn('סטטוס', 'סטטוס', 'statusName', 100, 'string', 'campaign_criterion'),
-      tableColumn('ID קריטריון', 'ID', 'criterion_id', 100, 'string', 'campaign_criterion'),
-      tableColumn('מילת מפתח', 'מילת מפתח', 'text', 200, 'string', 'campaign_criterion.keyword'),
-    ],
-    [],
+    () => {
+      const cols = [];
+
+      // אם אנחנו בתצוגה גלובלית, נוסיף שם קמפיין וקבוצה
+      if (!campaignId) {
+        cols.push(tableColumn('קמפיין', 'קמפיין', 'name', 120, 'string', 'campaign'));
+      }
+      if (!adGroupId) {
+        cols.push(tableColumn('קבוצת מודעות', 'קבוצת מודעות', 'name', 120, 'string', 'ad_group'));
+      }
+
+      cols.push(
+        tableColumn('סוג התאמה', 'סוג התאמה', 'match_type', 100, 'string', 'campaign_criterion.keyword'),
+        tableColumn('סטטוס', 'סטטוס', 'statusName', 100, 'string', 'campaign_criterion'),
+        tableColumn('ID קריטריון', 'ID', 'criterion_id', 100, 'string', 'campaign_criterion'),
+        tableColumn('מילת מפתח', 'מילת מפתח', 'text', 200, 'string', 'campaign_criterion.keyword')
+      );
+
+      return cols;
+    },
+    [campaignId, adGroupId],
   );
 
   const table = useReactTable({

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -27,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { DataGridColumnVisibility } from '@/components/ui/data-grid-column-visibility';
 
 const KeywordsTable = ({ data }) => {
+  const { campaignId, adGroupId } = useParams();
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [sorting, setSorting] = useState([{ id: 'clicks', desc: true }]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,24 +41,40 @@ const KeywordsTable = ({ data }) => {
     return data.filter((item) => {
       const keywordText = item.ad_group_criterion?.keyword?.text || '';
       const adGroupName = item.ad_group?.name || '';
+      const campaignName = item.campaign?.name || '';
       return (
         keywordText.toLowerCase().includes(lowerQuery) ||
-        adGroupName.toLowerCase().includes(lowerQuery)
+        adGroupName.toLowerCase().includes(lowerQuery) ||
+        campaignName.toLowerCase().includes(lowerQuery)
       );
     });
   }, [data, searchQuery]);
 
   const columns = useMemo(
-    () => [
-      tableColumn('סטטוס', 'סטטוס', 'statusName', 60, 'string', 'ad_group_criterion'),
-      tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
-      tableColumn('עלות ממוצעת לקליק', 'CPC', 'average_cpc', 60, 'currency', 'metrics'),
-      tableColumn('אחוז הקלקות', 'CTR', 'ctr', 60, 'percent', 'metrics'),
-      tableColumn('צפיות', 'צפיות', 'impressions', 60, 'int', 'metrics'),
-      tableColumn('קליקים', 'קליקים', 'clicks', 60, 'int', 'metrics'),
-      tableColumn('מילת מפתח', 'מילת מפתח', 'text', 160, 'string', 'ad_group_criterion.keyword')
-    ],
-    [],
+    () => {
+      const cols = [];
+      
+      // אם אנחנו בתצוגה גלובלית, נוסיף שם קמפיין וקבוצה
+      if (!campaignId) {
+        cols.push(tableColumn('קמפיין', 'קמפיין', 'name', 120, 'string', 'campaign'));
+      }
+      if (!adGroupId) {
+        cols.push(tableColumn('קבוצת מודעות', 'קבוצת מודעות', 'name', 120, 'string', 'ad_group'));
+      }
+
+      cols.push(
+        tableColumn('סטטוס', 'סטטוס', 'statusName', 60, 'string', 'ad_group_criterion'),
+        tableColumn('המרות', 'המרות', 'conversions', 40, 'int', 'metrics'),
+        tableColumn('עלות ממוצעת לקליק', 'CPC', 'average_cpc', 60, 'currency', 'metrics'),
+        tableColumn('אחוז הקלקות', 'CTR', 'ctr', 60, 'percent', 'metrics'),
+        tableColumn('צפיות', 'צפיות', 'impressions', 60, 'int', 'metrics'),
+        tableColumn('קליקים', 'קליקים', 'clicks', 60, 'int', 'metrics'),
+        tableColumn('מילת מפתח', 'מילת מפתח', 'text', 160, 'string', 'ad_group_criterion.keyword')
+      );
+      
+      return cols;
+    },
+    [campaignId, adGroupId],
   );
 
   const table = useReactTable({

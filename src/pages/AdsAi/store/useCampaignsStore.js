@@ -168,4 +168,50 @@ export const useCampaignsStore = create((set) => ({
       throw error;
     }
   },
+  // פונקציות גלובליות לכל החשבון (עבור הטאבים בעמוד הראשי)
+  fetchAllAdGroups: async (startDate, endDate) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}allAdGroups`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+      });
+      return mapCampaignsWithStatus(response.data, 'ad_group');
+    } catch (error) {
+      console.error('Error fetching all ad groups:', error);
+      throw error;
+    }
+  },
+  fetchAllKeywords: async (startDate, endDate) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}allKeywords`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+      });
+      return mapCampaignsWithStatus(response.data, 'ad_group_criterion');
+    } catch (error) {
+      console.error('Error fetching all keywords:', error);
+      throw error;
+    }
+  },
+  fetchAllSearchTerms: async (startDate, endDate) => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}allSearchTerms`, {
+        startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+        endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching all search terms:', error);
+      throw error;
+    }
+  },
+  fetchAllNegativeKeywords: async () => {
+    try {
+      const response = await axios.post(`${APP_SETTINGS.global_url}allNegativeKeywords`);
+      return mapCampaignsWithStatus(response.data, 'campaign_criterion');
+    } catch (error) {
+      console.error('Error fetching all negative keywords:', error);
+      throw error;
+    }
+  },
 }));
